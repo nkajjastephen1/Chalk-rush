@@ -2,6 +2,8 @@ import { memo } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { colors, fonts, MIN_TOUCH, radius } from '@/constants/theme';
+import { useSettings } from '@/hooks/useSettings';
+import { formatLetters } from '@/utils/word';
 
 const ROWS = ['abcdefg', 'hijklmn', 'opqrstu', 'vwxyz'];
 
@@ -16,6 +18,7 @@ interface KeyProps {
 }
 
 const Key = memo(function Key({ letter, status, disabled, size, onPress }: KeyProps) {
+  const { letterCase } = useSettings().settings;
   const unavailable = disabled || status === 'original';
   return (
     <Pressable
@@ -42,7 +45,7 @@ const Key = memo(function Key({ letter, status, disabled, size, onPress }: KeyPr
           status === 'chosen' && { color: colors.blue },
         ]}
       >
-        {letter.toUpperCase()}
+        {formatLetters(letter, letterCase)}
       </Text>
       {status === 'original' ? <View pointerEvents="none" style={styles.strike} /> : null}
     </Pressable>

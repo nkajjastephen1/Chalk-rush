@@ -45,6 +45,11 @@ const MOTION_OPTIONS: { id: Settings['reduceMotion']; label: string }[] = [
   { id: 'off', label: 'Full' },
 ];
 
+const CASE_OPTIONS: { id: Settings['letterCase']; label: string; a11y: string }[] = [
+  { id: 'upper', label: 'ABC', a11y: 'Uppercase' },
+  { id: 'lower', label: 'abc', a11y: 'Lowercase' },
+];
+
 export default function SettingsScreen() {
   const { settings, update, reduceMotion } = useSettings();
   const { reset } = useStats();
@@ -79,6 +84,29 @@ export default function SettingsScreen() {
           value={settings.countdownEnabled}
           onChange={(v) => update({ countdownEnabled: v })}
         />
+        <View style={styles.row}>
+          <View style={styles.rowText}>
+            <Text style={styles.label}>Letter case</Text>
+            <Text style={styles.desc}>Show letters as capitals or small letters. You can also switch during a game.</Text>
+            <View style={styles.segment} accessibilityRole="radiogroup">
+              {CASE_OPTIONS.map((o) => {
+                const active = settings.letterCase === o.id;
+                return (
+                  <Pressable
+                    key={o.id}
+                    onPress={() => update({ letterCase: o.id })}
+                    style={[styles.segmentItem, active && styles.segmentActive]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: active }}
+                    accessibilityLabel={`Letter case: ${o.a11y}`}
+                  >
+                    <Text style={[styles.segmentText, styles.caseText, active && styles.segmentTextActive]}>{o.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        </View>
         <View style={[styles.row, styles.lastRow]}>
           <View style={styles.rowText}>
             <Text style={styles.label}>Motion</Text>
@@ -172,6 +200,7 @@ const styles = StyleSheet.create({
   segmentActive: { backgroundColor: colors.forest, borderColor: colors.forestDark },
   segmentText: { fontFamily: fonts.medium, fontSize: 15, color: colors.ink },
   segmentTextActive: { color: colors.chalk },
+  caseText: { fontFamily: fonts.hand, fontSize: 20 },
   note: { fontFamily: fonts.regular, fontSize: 14, color: colors.muted, marginTop: 12, textAlign: 'center' },
   reset: { marginTop: 24 },
 });

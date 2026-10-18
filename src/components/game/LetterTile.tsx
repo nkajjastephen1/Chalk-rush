@@ -12,6 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { colors, fonts, radius } from '@/constants/theme';
+import { useSettings } from '@/hooks/useSettings';
+import { formatLetters } from '@/utils/word';
 
 export type TileStatus = 'idle' | 'selected' | 'filled' | 'changed' | 'hint';
 
@@ -28,6 +30,7 @@ interface Props {
 }
 
 function LetterTileBase({ index, letter, status, size, disabled, reduceMotion, onPress, accessibilityLabel }: Props) {
+  const { letterCase } = useSettings().settings;
   const lift = useSharedValue(0);
   const pulse = useSharedValue(1);
   const active = status === 'selected' || status === 'filled';
@@ -75,7 +78,7 @@ function LetterTileBase({ index, letter, status, size, disabled, reduceMotion, o
             style={[styles.letter, { fontSize: size * 0.82, lineHeight: size * 1.0, color: letterColor }]}
             allowFontScaling={false}
           >
-            {letter.toUpperCase()}
+            {formatLetters(letter, letterCase)}
           </Animated.Text>
         ) : null}
         <Animated.View

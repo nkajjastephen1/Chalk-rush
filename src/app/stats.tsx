@@ -5,7 +5,9 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { colors, fonts, radius } from '@/constants/theme';
 import { DIFFICULTIES, DIFFICULTY_ORDER } from '@/data/difficulty';
 import { winRate } from '@/features/stats/stats';
+import { useSettings } from '@/hooks/useSettings';
 import { useStats } from '@/hooks/useStats';
+import { formatLetters } from '@/utils/word';
 
 function Tile({ label, value }: { label: string; value: string | number }) {
   return (
@@ -21,6 +23,7 @@ const OUTCOME_COLOR = { player: colors.green, computer: colors.red, draw: colors
 
 export default function Stats() {
   const { stats, loaded } = useStats();
+  const { letterCase } = useSettings().settings;
   return (
     <Screen scroll style={styles.content}>
       <ScreenHeader title="Statistics" />
@@ -34,7 +37,7 @@ export default function Stats() {
         <Tile label="Best score" value={stats.bestScore} />
         <Tile label="Current streak" value={stats.currentStreak} />
         <Tile label="Best streak" value={stats.bestStreak} />
-        <Tile label="Longest word" value={stats.longestWord ? stats.longestWord.toUpperCase() : '—'} />
+        <Tile label="Longest word" value={stats.longestWord ? formatLetters(stats.longestWord, letterCase) : '—'} />
         <Tile label="Words formed" value={stats.totalValidWords} />
       </View>
 

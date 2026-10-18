@@ -6,6 +6,7 @@ import { ChalkButton } from '@/components/ChalkButton';
 import { Dialog } from '@/components/Dialog';
 import { AlphabetGrid } from '@/components/game/AlphabetGrid';
 import { Countdown } from '@/components/game/Countdown';
+import { LetterCaseToggle } from '@/components/game/LetterCaseToggle';
 import { MoveChain } from '@/components/game/MoveChain';
 import { TopBar } from '@/components/game/TopBar';
 import { TurnIndicator } from '@/components/game/TurnIndicator';
@@ -25,7 +26,7 @@ import { useStats } from '@/hooks/useStats';
 import { haptics } from '@/services/haptics';
 import { sound } from '@/services/sound';
 import type { GameEvent, RoundResult } from '@/types/game';
-import { replaceAt } from '@/utils/word';
+import { formatLetters, replaceAt } from '@/utils/word';
 
 type Tone = 'info' | 'error' | 'success' | 'hint';
 interface Selection {
@@ -34,9 +35,9 @@ interface Selection {
   letter: string | null;
 }
 
-const up = (w: string) => w.toUpperCase();
+type Fmt = (w: string) => string;
 
-function messageForEvent(e: GameEvent | undefined): { text: string; tone: Tone } | null {
+function messageForEvent(e: GameEvent | undefined, up: Fmt): { text: string; tone: Tone } | null {
   if (!e) return null;
   switch (e.type) {
     case 'invalid':
@@ -68,7 +69,7 @@ function messageForEvent(e: GameEvent | undefined): { text: string; tone: Tone }
   }
 }
 
-function roundMessage(r: RoundResult, maxMoves: number): string {
+function roundMessage(r: RoundResult, maxMoves: number, up: Fmt): string {
   const word = up(r.finalWord);
   switch (r.reason) {
     case 'no_moves':
@@ -91,6 +92,7 @@ export default function GameScreen() {
   const difficulty = isDifficulty(params.difficulty) ? params.difficulty : 'simple';
   const { playedWords, recordGame, stats } = useStats();
   const { settings, reduceMotion } = useSettings();
+  const up: Fmt = (w) => formatLetters(w, settings.letterCase);
   const { state, dictionary, actions } = useGame(difficulty, playedWords);
 
   const isPlayerTurn = state.phase === 'player_turn';
@@ -216,7 +218,7 @@ export default function GameScreen() {
 
   // ---- derived display -----------------------------------------------------------------
   const lastEvent = state.events[state.events.length - 1];
-  const eventMessage = messageForEvent(lastEvent);
+  const eventMessage = messageForEvent(lastEvent, up);
   const message =
     localMessage && localMessage.seq === state.eventSeq
       ? localMessage
@@ -309,6 +311,7 @@ export default function GameScreen() {
         />
         <ChalkButton
           label={proposed ? `Submit ${up(proposed)}` : 'Submit'}
+          accessibilityLabel={proposed ? `Submit ${proposed.toUpperCase()}` : 'Submit'}
           onPress={submit}
           disabled={!proposed || !isPlayerTurn}
           style={styles.submitBtn}
@@ -317,6 +320,10 @@ export default function GameScreen() {
 
       <View style={styles.chain}>
         <MoveChain startWord={state.startWord} moves={state.moves} reduceMotion={reduceMotion} />
+      </View>
+
+      <View style={styles.caseRow}>
+        <LetterCaseToggle />
       </View>
 
       <View style={styles.grid}>
@@ -365,7 +372,7 @@ export default function GameScreen() {
         tone={lastRound?.outcome === 'player' ? 'win' : lastRound?.outcome === 'computer' ? 'lose' : 'draw'}
         message={
           lastRound
-            ? `${roundMessage(lastRound, state.maxMovesPerRound)}${
+            ? `${roundMessage(lastRound, state.maxMovesPerRound, up)}${
                 concedeExample ? ` You could have played ${up(concedeExample.word)}.` : ''
               }${lastRound.outcome === 'player' ? ` Round bonus +${SCORING.roundWinBonus[difficulty]}.` : ''}`
             : undefined
@@ -382,7 +389,7 @@ export default function GameScreen() {
         tone={state.outcome === 'player' ? 'win' : state.outcome === 'computer' ? 'lose' : 'draw'}
         message={
           lastRound
-            ? `${roundMessage(lastRound, state.maxMovesPerRound)} Final score: ${state.playerScore}.`
+            ? `${roundMessage(lastRound, state.maxMovesPerRound, up)} Final score: ${state.playerScore}.`
             : undefined
         }
         reduceMotion={reduceMotion}
@@ -417,6 +424,7 @@ export default function GameScreen() {
 
 const styles = StyleSheet.create({
   turnRow: { marginTop: 4, marginBottom: 14 },
+  caseRow: { alignItems: 'flex-end', paddingHorizontal: 18, marginBottom: 4 },
   feedback: { minHeight: 52, justifyContent: 'center', paddingHorizontal: 20, marginTop: 8 },
   message: { fontFamily: fonts.medium, fontSize: 16, textAlign: 'center', lineHeight: 21 },
   info: { color: colors.inkSoft },

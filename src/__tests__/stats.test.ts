@@ -52,8 +52,9 @@ describe('storage', () => {
   beforeEach(() => AsyncStorage.clear());
 
   it('round-trips settings and stats', async () => {
-    await saveSettings({ ...DEFAULT_SETTINGS, soundEnabled: false, lastDifficulty: 'hard' });
-    expect(await loadSettings()).toMatchObject({ soundEnabled: false, lastDifficulty: 'hard' });
+    expect(DEFAULT_SETTINGS.letterCase).toBe('upper');
+    await saveSettings({ ...DEFAULT_SETTINGS, soundEnabled: false, lastDifficulty: 'hard', letterCase: 'lower' });
+    expect(await loadSettings()).toMatchObject({ soundEnabled: false, lastDifficulty: 'hard', letterCase: 'lower' });
     const stats = applyGameSummary(EMPTY_STATS, summary());
     await saveStats(stats);
     expect(await loadStats()).toEqual(stats);

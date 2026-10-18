@@ -3,7 +3,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
 import { colors, fonts } from '@/constants/theme';
+import { useSettings } from '@/hooks/useSettings';
 import type { Move } from '@/types/game';
+import { formatLetters } from '@/utils/word';
 
 interface Props {
   startWord: string;
@@ -13,6 +15,7 @@ interface Props {
 
 /** Horizontal chalk trail of the round so far: CAT → COT → DOT … */
 export function MoveChain({ startWord, moves, reduceMotion }: Props) {
+  const { letterCase } = useSettings().settings;
   const scroll = useRef<ScrollView>(null);
   useEffect(() => {
     const t = setTimeout(() => scroll.current?.scrollToEnd({ animated: !reduceMotion }), 50);
@@ -28,7 +31,7 @@ export function MoveChain({ startWord, moves, reduceMotion }: Props) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        <Text style={[styles.word, styles.start]}>{startWord.toUpperCase()}</Text>
+        <Text style={[styles.word, styles.start]}>{formatLetters(startWord, letterCase)}</Text>
         {moves.map((m, i) => (
           <Animated.View
             key={`${i}-${m.to}`}
@@ -39,7 +42,7 @@ export function MoveChain({ startWord, moves, reduceMotion }: Props) {
             <Text style={[styles.word, m.by === 'player' ? styles.player : styles.computer]}>
               {m.to.split('').map((ch, idx) => (
                 <Text key={idx} style={idx === m.position ? styles.changed : undefined}>
-                  {ch.toUpperCase()}
+                  {formatLetters(ch, letterCase)}
                 </Text>
               ))}
             </Text>

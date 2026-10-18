@@ -101,6 +101,25 @@ describe('game screen interaction', () => {
     expect(currentWord()).toBe(word);
   }, 20000);
 
+  it('switches the board and keyboard between uppercase and lowercase', async () => {
+    renderGame();
+    await waitForPlayerTurn();
+    const word = currentWord();
+    expect(screen.getAllByText(word[0].toUpperCase()).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Q').length).toBeGreaterThan(0);
+
+    fireEvent.press(screen.getByLabelText('Lowercase letters'));
+    expect(screen.getByLabelText('Lowercase letters').props.accessibilityState).toMatchObject({ checked: true });
+    expect(screen.getAllByText(word[0]).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('q').length).toBeGreaterThan(0);
+    expect(screen.queryAllByText('Q')).toHaveLength(0);
+    // Accessibility labels stay uppercase, so play continues as before.
+    expect(currentWord()).toBe(word);
+
+    fireEvent.press(screen.getByLabelText('Uppercase letters'));
+    expect(screen.getAllByText('Q').length).toBeGreaterThan(0);
+  }, 20000);
+
   it('cannot pick the letter being replaced, and pausing stops play until resumed', async () => {
     renderGame();
     await waitForPlayerTurn();

@@ -16,6 +16,7 @@ import { Screen } from '@/components/Screen';
 import { colors, fonts, radius, softShadow } from '@/constants/theme';
 import { DIFFICULTIES, isDifficulty } from '@/data/difficulty';
 import { useSettings } from '@/hooks/useSettings';
+import { formatLetters } from '@/utils/word';
 
 type Params = Record<
   | 'difficulty'
@@ -54,7 +55,7 @@ function Confetti({ index }: { index: number }) {
 
 export default function Result() {
   const p = useLocalSearchParams<Partial<Params>>();
-  const { reduceMotion } = useSettings();
+  const { reduceMotion, settings } = useSettings();
   const difficulty = isDifficulty(p.difficulty) ? p.difficulty : 'simple';
   const outcome = p.outcome === 'player' || p.outcome === 'computer' ? p.outcome : 'draw';
   const title = outcome === 'player' ? 'You Win!' : outcome === 'computer' ? 'You Lose' : "It's a Draw";
@@ -115,7 +116,7 @@ export default function Result() {
       {words.length ? (
         <View style={styles.words}>
           <Text style={styles.wordsTitle}>Your words</Text>
-          <Text style={styles.wordsList}>{words.map((w) => w.toUpperCase()).join('  ·  ')}</Text>
+          <Text style={styles.wordsList}>{words.map((w) => formatLetters(w, settings.letterCase)).join('  ·  ')}</Text>
         </View>
       ) : null}
 

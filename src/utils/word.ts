@@ -1,5 +1,12 @@
 export const ALPHABET = 'abcdefghijklmnopqrstuvwxyz';
 
+export type LetterCase = 'upper' | 'lower';
+
+/** Formats letters for display only; game logic always works in lowercase. */
+export function formatLetters(text: string, letterCase: LetterCase): string {
+  return letterCase === 'upper' ? text.toUpperCase() : text.toLowerCase();
+}
+
 /** Lowercases, trims and strips internal whitespace. Does not remove other characters. */
 export function normalizeWord(input: string): string {
   return input.normalize('NFKC').trim().replace(/\s+/g, '').toLowerCase();

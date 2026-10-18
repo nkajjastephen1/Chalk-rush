@@ -15,6 +15,8 @@ interface Props {
   icon?: ReactNode;
   size?: 'md' | 'lg' | 'sm';
   style?: ViewStyle;
+  /** Defaults to `label`. */
+  accessibilityLabel?: string;
   accessibilityHint?: string;
 }
 
@@ -36,6 +38,7 @@ export function ChalkButton({
   icon,
   size = 'md',
   style,
+  accessibilityLabel,
   accessibilityHint,
 }: Props) {
   const scale = useSharedValue(1);
@@ -44,7 +47,7 @@ export function ChalkButton({
   return (
     <AnimatedPressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}

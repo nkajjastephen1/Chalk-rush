@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isDifficulty } from '@/data/difficulty';
 import { EMPTY_STATS, sanitizeStats, type PlayerStats } from '@/features/stats/stats';
 import type { Difficulty } from '@/types/game';
+import type { LetterCase } from '@/utils/word';
 
 const KEYS = {
   settings: 'chalkrush:v1:settings',
@@ -19,6 +20,8 @@ export interface Settings {
   countdownEnabled: boolean;
   /** 'system' follows the OS reduce-motion setting. */
   reduceMotion: 'system' | 'on' | 'off';
+  /** How letters are shown on the board, keyboard and word lists. */
+  letterCase: LetterCase;
   lastDifficulty: Difficulty;
 }
 
@@ -27,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   hapticsEnabled: true,
   countdownEnabled: true,
   reduceMotion: 'system',
+  letterCase: 'upper',
   lastDifficulty: 'simple',
 };
 
@@ -63,6 +67,7 @@ export async function loadSettings(): Promise<Settings> {
       raw.reduceMotion === 'on' || raw.reduceMotion === 'off' || raw.reduceMotion === 'system'
         ? raw.reduceMotion
         : DEFAULT_SETTINGS.reduceMotion,
+    letterCase: raw.letterCase === 'lower' || raw.letterCase === 'upper' ? raw.letterCase : DEFAULT_SETTINGS.letterCase,
     lastDifficulty: isDifficulty(raw.lastDifficulty) ? raw.lastDifficulty : DEFAULT_SETTINGS.lastDifficulty,
   };
 }
